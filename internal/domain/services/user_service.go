@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+//go:generate mockery --name=UserRepository --case=underscore --outpkg=mocks --output=./mocks --with-expecter
 type UserRepository interface {
 	CreateUser(ctx context.Context, user models.User) error
 	GetUserByID(ctx context.Context, id string) (models.User, error)
@@ -20,10 +21,15 @@ type UserService struct {
 	options UserServiceOptions
 }
 
-func NewUserService(options UserServiceOptions) *UserService {
+func NewUserService(options UserServiceOptions) (*UserService, error) {
+	if options.Repository == nil {
+		err := fmt.Errorf("failed to create user service: repository is nil")
+		return nil, err
+	}
+
 	return &UserService{
 		options: options,
-	}
+	}, nil
 }
 
 func (service UserService) CreateUser(ctx context.Context, username string, group string, id string) error {
