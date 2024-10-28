@@ -1,10 +1,10 @@
-package services
+package user
 
 import (
 	"context"
 	"fmt"
 	"github.com/arrrrtur/class-scheduler.git/internal/domain/models"
-	"github.com/arrrrtur/class-scheduler.git/internal/domain/services/mocks"
+	"github.com/arrrrtur/class-scheduler.git/internal/domain/services/user/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
