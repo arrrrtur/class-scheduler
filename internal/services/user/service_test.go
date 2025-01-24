@@ -3,38 +3,40 @@ package user
 import (
 	"context"
 	"fmt"
-	"github.com/arrrrtur/class-scheduler.git/internal/domain/models"
-	"github.com/arrrrtur/class-scheduler.git/internal/domain/services/user/mocks"
+	"github.com/arrrrtur/class-scheduler.git/internal/models"
+	"github.com/arrrrtur/class-scheduler.git/internal/services/user/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func TestNewUserService(t *testing.T) {
+func TestNewService(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
-		options UserServiceOptions
+		options ServiceOptions
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *UserService
+		want    *Service
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			args: args{
-				options: UserServiceOptions{
-					Repository: func(test *testing.T) UserRepository {
-						repository := mocks.NewUserRepository(test)
+				options: ServiceOptions{
+					Repository: func(test *testing.T) Repository {
+						repository := mocks.NewRepository(test)
 						assert.NotNil(test, repository)
 
 						return repository
 					}(t),
 				},
 			},
-			want: &UserService{
-				options: UserServiceOptions{
-					Repository: mocks.NewUserRepository(t),
+			want: &Service{
+				options: ServiceOptions{
+					Repository: mocks.NewRepository(t),
 				},
 			},
 			wantErr: assert.NoError,
@@ -42,7 +44,7 @@ func TestNewUserService(t *testing.T) {
 		{
 			name: "error/repository is nil",
 			args: args{
-				options: UserServiceOptions{
+				options: ServiceOptions{
 					Repository: nil,
 				},
 			},
@@ -51,8 +53,12 @@ func TestNewUserService(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewUserService(tt.args.options)
+			t.Parallel()
+
+			got, err := New(tt.args.options)
 
 			tt.wantErr(t, err)
 
@@ -61,9 +67,11 @@ func TestNewUserService(t *testing.T) {
 	}
 }
 
-func TestUserService_CreateUser(t *testing.T) {
+func TestService_CreateUser(t *testing.T) {
+	t.Parallel()
+
 	type fields struct {
-		options UserServiceOptions
+		options ServiceOptions
 	}
 	type args struct {
 		ctx      context.Context
@@ -80,9 +88,9 @@ func TestUserService_CreateUser(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				options: UserServiceOptions{
-					Repository: func(test *testing.T) UserRepository {
-						repository := mocks.NewUserRepository(test)
+				options: ServiceOptions{
+					Repository: func(test *testing.T) Repository {
+						repository := mocks.NewRepository(test)
 						assert.NotNil(test, repository)
 						repository.EXPECT().
 							CreateUser(
@@ -112,9 +120,9 @@ func TestUserService_CreateUser(t *testing.T) {
 		{
 			name: "error/user already exists",
 			fields: fields{
-				options: UserServiceOptions{
-					Repository: func(test *testing.T) UserRepository {
-						repository := mocks.NewUserRepository(test)
+				options: ServiceOptions{
+					Repository: func(test *testing.T) Repository {
+						repository := mocks.NewRepository(test)
 						assert.NotNil(test, repository)
 						repository.EXPECT().
 							CreateUser(
@@ -143,8 +151,12 @@ func TestUserService_CreateUser(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
-			service := UserService{
+			t.Parallel()
+
+			service := Service{
 				options: tt.fields.options,
 			}
 			err := service.CreateUser(tt.args.ctx, tt.args.username, tt.args.group, tt.args.id)
